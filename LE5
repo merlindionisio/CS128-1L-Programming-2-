@@ -1,72 +1,100 @@
-/*=======================================================================================================
-Problem Statement:
-	The French mathematician Rene Descartes invented the notion of a “Cartesian product” of sets, 
-	defined as follows:
-	Let A and B be sets. The Cartesian product of A and B, is the set of all pairs (a,b) where a 
-	is a member of Set A and b is a member of Set B. the pair (a,b) is called an ordered pair.
-
-Let us define an OrderedPair class with the following:
-Class OrderedPair {
-	public:
-	
-	private:
-	
-} 
-
-Create a program that contains a class and a function to compute the Cartesian product of two sets of 
-string sets stored as array, respectively and a main function that uses the previous function.
-
-For example the Cartesian product of {“A”,”B”,”C”} and {“x”, “y”} is {(“A”,”x”), (“A”,”y”),(“B”,”x”), 
-(“B”,”y”), (“C”,”x”),(“C”,”y)}.
-
-=======================================================================================================*/
-
+#include <algorithm>
 #include <iostream>
-#include<string>
-#include<iomanip>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+
 using namespace std;
 
-class Pair {
-	private:
-		string first[3], second[2];
-		
-	public:
-		void getpair();
-		void arraypair();
-			};
-			
-void Pair::getpair()
-{
-	
-	cout<<"Input the values of x, y, and z: "<<endl;
-	for (int count= 0; count <3; count++)
-	{
-	cin>>first[count];
-	}
-	cout<< "input the values of a, and b: "<<endl;
-	for (int count=0; count <2; count++)
-	{
-	cin>>second[count];
-	}
-cout<<endl;
+class OrderedPairGame {
+  private:
+    vector<string> setA;
+    vector<string> setB;
+    set<pair<string, string>> submittedPairs;
 
-}
-void Pair::arraypair()
-{
-	cout<<"\nThe Cartesian products: \n";
-	cout<<first[0]<<","<<second[0]<<endl;
-	cout<<first[0]<<","<<second[1]<<endl;
-	cout<<first[1]<<","<<second[0]<<endl;
-	cout<<first[1]<<","<<second[1]<<endl;
-	cout<<first[2]<<","<<second[0]<<endl;
-	cout<<first[2]<<","<<second[1]<<endl;
-}
+    vector<pair<string, string>> buildCartesianProduct() const {
+        vector<pair<string, string>> product;
+        for (const string &a : setA) {
+            for (const string &b : setB) {
+                product.push_back({a, b});
+            }
+        }
+        return product;
+    }
 
-int main()
-{
-	Pair pair;
-	pair.getpair();
-	pair.arraypair();
-	
-	return 0;
-}			
+  public:
+    void setupSets() {
+        int sizeA, sizeB;
+
+        cout << "=== Cartesian Product Challenge ===\n";
+        cout << "How many elements should Set A have? ";
+        cin >> sizeA;
+
+        cout << "How many elements should Set B have? ";
+        cin >> sizeB;
+
+        setA.resize(sizeA);
+        setB.resize(sizeB);
+
+        cout << "\nEnter elements for Set A:\n";
+        for (int i = 0; i < sizeA; i++) {
+            cout << "A[" << i + 1 << "]: ";
+            cin >> setA[i];
+        }
+
+        cout << "\nEnter elements for Set B:\n";
+        for (int i = 0; i < sizeB; i++) {
+            cout << "B[" << i + 1 << "]: ";
+            cin >> setB[i];
+        }
+
+        cout << "\nGreat! You now need to guess every ordered pair (a,b).\n";
+        cout << "Type each answer as two strings separated by a space.\n";
+    }
+
+    void playRound() {
+        vector<pair<string, string>> answerKey = buildCartesianProduct();
+        int totalPairs = static_cast<int>(answerKey.size());
+
+        cout << "\nTotal pairs to find: " << totalPairs << "\n";
+
+        while (static_cast<int>(submittedPairs.size()) < totalPairs) {
+            string a, b;
+            cout << "Enter pair #" << submittedPairs.size() + 1 << ": ";
+            cin >> a >> b;
+
+            pair<string, string> current = {a, b};
+
+            if (find(answerKey.begin(), answerKey.end(), current) == answerKey.end()) {
+                cout << "❌ Not part of A x B. Try again.\n";
+                continue;
+            }
+
+            if (submittedPairs.count(current)) {
+                cout << "⚠️  You already entered that pair.\n";
+                continue;
+            }
+
+            submittedPairs.insert(current);
+            cout << "✅ Correct! " << submittedPairs.size() << "/" << totalPairs << " found.\n";
+        }
+
+        cout << "\n🎉 You completed the Cartesian product!\n";
+        cout << "Final set: { ";
+        for (int i = 0; i < totalPairs; i++) {
+            cout << "(" << answerKey[i].first << "," << answerKey[i].second << ")";
+            if (i + 1 < totalPairs) {
+                cout << ", ";
+            }
+        }
+        cout << " }\n";
+    }
+};
+
+int main() {
+    OrderedPairGame game;
+    game.setupSets();
+    game.playRound();
+    return 0;
+}
